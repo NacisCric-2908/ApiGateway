@@ -47,3 +47,17 @@ def test_las_dos_rutas_del_mid_de_flota_tienen_reglas_de_prefijo_distintas(http,
     b = http.get("/flota/alertas", headers=auth(token_admin)).json()
     assert a["ruta"] == "/recomendaciones/vehiculo"  # se quita /flota
     assert b["ruta"] == "/flota/alertas"  # no se quita
+
+
+def test_el_viajes_simulado_responde_zonas_verificar_como_lo_haria_el_real(http, token_mid_flota):
+    """Lo necesita el MID de Flota: las zonas propuestas, con `permitida` y la lista de zonas."""
+    casos = {
+        (4.7110, -74.07165): (False, ["Prohibida Centro"]),
+        (4.7110, -74.0702): (True, ["Recargo Oriente"]),
+        (4.7092, -74.0720): (True, ["Parqueo Sur"]),
+        (4.7125, -74.0721): (True, []),
+    }
+    for (lat, lng), (permitida, nombres) in casos.items():
+        r = http.get("/viajes/zonas/verificar", params={"lat": lat, "lng": lng}, headers=auth(token_mid_flota))
+        assert r.status_code == 200, r.text
+        assert r.json()["permitida"] is permitida and [z["nombre"] for z in r.json()["zonas"]] == nombres
