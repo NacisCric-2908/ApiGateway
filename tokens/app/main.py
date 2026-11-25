@@ -97,8 +97,4 @@ def crear_app(settings: Settings | None = None) -> FastAPI:
     return app
 
 
-def _app_por_defecto() -> FastAPI:
-    return crear_app()
-
-
-app = _app_por_defecto()
+app = crear_app()
