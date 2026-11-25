@@ -4,6 +4,8 @@
     - settings/servicios.json a qué variables de entorno corresponden la URL y el secreto de cada servicio
     - settings/limites.json   límites de peticiones y tiempo de espera por defecto
   Una ruta solo se activa si la URL de su servicio está definida (así se puede desplegar por partes).
+  Límites por IP: detrás del ingreso de Azure (un proxy) todas las peticiones llegan desde la IP del proxy; por eso se
+  lee la IP real de X-Forwarded-For, pero SOLO cuando la petición viene de un proxy de confianza (redes privadas).
 */ -}}
 {{- /*
   disable_jwk_security: KrakenD lo exige aunque la llave pública se lea de un ARCHIVO local (no hay conexión de red
@@ -23,6 +25,9 @@
     "router": {
       "health_path": "/health",
       "hide_version_header": true,
+      "forwarded_by_client_ip": true,
+      "remote_ip_headers": ["X-Forwarded-For"],
+      "trusted_proxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"],
       "error_body": {
         "404": {"codigo": "no_encontrado", "mensaje": "La ruta no existe en el gateway.", "detalle": {}},
         "405": {"codigo": "metodo_no_permitido", "mensaje": "Método no permitido para esta ruta.", "detalle": {}}
