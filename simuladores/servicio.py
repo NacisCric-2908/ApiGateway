@@ -11,9 +11,31 @@ Ids especiales para probar el paso de errores: «conflicto» responde 409 y «in
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
 
 NOMBRE = os.environ.get("NOMBRE", "servicio")
 SECRETO = os.environ.get("SECRETO", "")
+
+# Las 4 zonas que Flota propone a Viajes y zonas (docs/semilla.md del CRUD de Flota): (lng_min, lat_min, lng_max, lat_max).
+# Solo las usa el servicio «viajes_crud», que responde /zonas/verificar como lo haría el real: así el MID de Flota
+# puede recomendar vehículos y generar alertas contra este simulador.
+ZONAS = [
+    ("Prohibida Centro", "prohibida", (-74.0719, 4.7107, -74.0714, 4.7113)),
+    ("Recargo Oriente", "recargo", (-74.0710, 4.7086, -74.0694, 4.7134)),
+    ("Parqueo Occidente", "parqueo", (-74.0748, 4.7086, -74.0730, 4.7134)),
+    ("Parqueo Sur", "parqueo", (-74.0730, 4.7086, -74.0710, 4.7100)),
+]
+
+
+def verificar_zonas(consulta: str) -> dict:
+    """`permitida` y `zonas` para un punto. Sin lat y lng válidos: permitida y sin zonas (es un simulador)."""
+    q = parse_qs(consulta)
+    try:
+        lat, lng = float(q["lat"][0]), float(q["lng"][0])
+    except (KeyError, ValueError, IndexError):
+        return {"permitida": True, "zonas": []}
+    zonas = [{"nombre": n, "tipo": t} for n, t, (x0, y0, x1, y1) in ZONAS if x0 <= lng <= x1 and y0 <= lat <= y1]
+    return {"permitida": not any(z["tipo"] == "prohibida" for z in zonas), "zonas": zonas}
 
 
 class Manejador(BaseHTTPRequestHandler):
@@ -53,9 +75,13 @@ class Manejador(BaseHTTPRequestHandler):
             return self._responder(409, {"codigo": "transicion_invalida", "mensaje": "Conflicto simulado.", "detalle": {}})
         if "/inexistente" in self.path:
             return self._responder(404, {"codigo": "no_encontrado", "mensaje": "No existe (simulado).", "detalle": {}})
+        extra_zonas = {}
+        if NOMBRE == "viajes_crud" and urlparse(self.path).path == "/zonas/verificar":
+            extra_zonas = verificar_zonas(urlparse(self.path).query)  # se suma al eco; el MID de Flota solo lee esto
         self._responder(
             200,
             {
+                **extra_zonas,
                 "servicio": NOMBRE,
                 "metodo": self.command,
                 "ruta": self.path.split("?")[0],
