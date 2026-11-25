@@ -11,3 +11,7 @@ credenciales-locales.json
 *.log
 .idea/
 .vscode/
+
+# Secretos de producción generados por scripts/03-secretos-produccion.sh
+secretos-produccion/
+credenciales-*.json
