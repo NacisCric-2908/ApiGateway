@@ -249,4 +249,3 @@ resource gateway 'Microsoft.App/containerApps@2024-03-01' = {
 
 output urlPublicaGateway string = 'https://${gateway.properties.configuration.ingress.fqdn}'
 output urlTokens string = 'https://${tokens.properties.configuration.ingress.fqdn}'
-output serviciosActivos array = map(activos, s => s.variable)
