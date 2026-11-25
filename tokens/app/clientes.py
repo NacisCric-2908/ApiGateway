@@ -1,6 +1,6 @@
 """Registro de clientes (los MID y la aplicación de la demostración) y verificación de sus secretos.
 
-Los secretos NO se guardan: solo su hash con PBKDF2-SHA256 (`pbkdf2_sha256$iteraciones$sal$hash`). Los secretos
+Los secretos NO se guardan: solo su hash con PBKDF2-SHA256 (`pbkdf2_sha256:iteraciones:sal:hash`; con «:» y no «$» para que Docker Compose no lo interprete como variable). Los secretos
 generados por este proyecto son aleatorios de 256 bits, así que un número moderado de iteraciones basta.
 """
 
@@ -17,12 +17,12 @@ ITERACIONES = 100_000
 def hash_secreto(secreto: str, iteraciones: int = ITERACIONES) -> str:
     sal = secrets.token_bytes(16)
     h = hashlib.pbkdf2_hmac("sha256", secreto.encode(), sal, iteraciones)
-    return f"pbkdf2_sha256${iteraciones}${base64.b64encode(sal).decode()}${base64.b64encode(h).decode()}"
+    return f"pbkdf2_sha256:{iteraciones}:{base64.b64encode(sal).decode()}:{base64.b64encode(h).decode()}"
 
 
 def verificar_secreto(secreto: str, almacenado: str) -> bool:
     try:
-        algoritmo, iteraciones, sal, esperado = almacenado.split("$")
+        algoritmo, iteraciones, sal, esperado = almacenado.split(":")
         if algoritmo != "pbkdf2_sha256":
             return False
         h = hashlib.pbkdf2_hmac("sha256", secreto.encode(), base64.b64decode(sal), int(iteraciones))
