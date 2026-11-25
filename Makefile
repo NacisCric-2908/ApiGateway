@@ -1,5 +1,5 @@
 # Atajos. Todo corre dentro de Docker: no hace falta instalar KrakenD, Python ni uv.
-.PHONY: setup up down logs test test-unidad test-e2e cliente claves
+.PHONY: setup up down logs test test-unidad test-e2e cliente claves docs
 
 setup:    ## Genera .env (llaves y secretos) y credenciales-locales.json. No sobrescribe si ya existen
 	@if [ -f .env ]; then echo ".env ya existe: no se toca (use 'make setup-forzar' para regenerar todo)"; else \
@@ -34,3 +34,6 @@ cliente:  ## Crea un cliente nuevo: make cliente ID=mid-nuevo ALCANCES=zonas:lee
 
 claves:   ## Genera un par de llaves nuevo (para rotarlas)
 	docker compose run --rm --no-deps tokens python -m app.cli claves
+
+docs:     ## Regenera docs/rutas.md y la colección de Postman desde el catálogo de rutas
+	docker run --rm --user $$(id -u):$$(id -g) -v $(CURDIR):/work -w /work python:3.12-slim python scripts/generar_docs.py

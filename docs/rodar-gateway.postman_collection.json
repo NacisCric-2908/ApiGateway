@@ -1,0 +1,1067 @@
+{
+  "info": {
+    "name": "Gateway Rodar",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Generada por make docs desde rutas.json. Ponga baseUrl, clientId y clientSecret y ejecute primero «Pedir token»."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "clientId",
+      "value": "administrador"
+    },
+    {
+      "key": "clientSecret",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Pedir token (ejecute esta primero)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const r = pm.response.json();",
+              "if (r.access_token) { pm.collectionVariables.set('token', r.access_token); }",
+              "pm.test('token emitido', () => pm.expect(r.access_token).to.be.a('string'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "key": "client_id",
+              "value": "{{clientId}}"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{clientSecret}}"
+            },
+            {
+              "key": "scope",
+              "value": "",
+              "disabled": true,
+              "description": "Opcional: un subconjunto de sus alcances, separados por espacio"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/token",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "token"
+          ]
+        }
+      }
+    },
+    {
+      "name": "CRUD de Flota (vehículos y localidades)",
+      "item": [
+        {
+          "name": "GET /flota/vehiculos  (Listar y buscar vehículos)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "scooter",
+                  "disabled": true
+                },
+                {
+                  "key": "estado",
+                  "value": "disponible",
+                  "disabled": true
+                },
+                {
+                  "key": "lat",
+                  "value": "4.7110",
+                  "disabled": false
+                },
+                {
+                  "key": "lng",
+                  "value": "-74.0721",
+                  "disabled": false
+                },
+                {
+                  "key": "radioMetros",
+                  "value": "500",
+                  "disabled": true
+                },
+                {
+                  "key": "pagina",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "tamano",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /flota/vehiculos  (Crear un vehículo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flota/vehiculos/{vehiculo_id}  (Detalle de un vehículo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos/veh-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos",
+                "veh-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /flota/vehiculos/{vehiculo_id}  (Reemplazar un vehículo)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos/veh-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos",
+                "veh-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /flota/vehiculos/{vehiculo_id}  (Eliminar un vehículo)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos/veh-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos",
+                "veh-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /flota/vehiculos/{vehiculo_id}/estado  (Cambiar el estado (reserva atómica))",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos/veh-0001/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos",
+                "veh-0001",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"reservado\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /flota/vehiculos/{vehiculo_id}/clima  (Clima en la ubicación del vehículo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos/veh-0001/clima",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos",
+                "veh-0001",
+                "clima"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flota/vehiculos/{vehiculo_id}/direccion  (Dirección de la ubicación del vehículo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/vehiculos/veh-0001/direccion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "vehiculos",
+                "veh-0001",
+                "direccion"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flota/localidades  (Las 20 localidades con el conteo de vehículos)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/localidades",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "localidades"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flota/localidades/verificar  (¿En qué localidad está un punto?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/localidades/verificar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "localidades",
+                "verificar"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "4.7110",
+                  "disabled": false
+                },
+                {
+                  "key": "lng",
+                  "value": "-74.0721",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flota/localidades/{codigo}  (Una localidad con su geometría)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/localidades/11",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "localidades",
+                "11"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MID de Flota (recomendaciones y alertas)",
+      "item": [
+        {
+          "name": "GET /flota/recomendaciones/vehiculo  (Los 3 mejores vehículos cerca de un punto)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/recomendaciones/vehiculo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "recomendaciones",
+                "vehiculo"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "4.7110",
+                  "disabled": false
+                },
+                {
+                  "key": "lng",
+                  "value": "-74.0721",
+                  "disabled": false
+                },
+                {
+                  "key": "tipo",
+                  "value": "scooter",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flota/alertas  (Alertas operativas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/flota/alertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flota",
+                "alertas"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CRUD de Viajes y zonas",
+      "item": [
+        {
+          "name": "GET /viajes  (Listar viajes)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "disponible",
+                  "disabled": true
+                },
+                {
+                  "key": "pagina",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "tamano",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /viajes  (Crear un viaje)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /viajes/{viaje_id}  (Detalle de un viaje)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/via-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "via-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /viajes/{viaje_id}  (Actualizar un viaje)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/via-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "via-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /viajes/zonas  (Listar zonas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/zonas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "zonas"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "scooter",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /viajes/zonas  (Crear una zona)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/zonas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "zonas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /viajes/zonas/verificar  (¿En qué zonas cae un punto? (lo usa el MID de Flota))",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/zonas/verificar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "zonas",
+                "verificar"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "4.7110",
+                  "disabled": false
+                },
+                {
+                  "key": "lng",
+                  "value": "-74.0721",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /viajes/zonas/{zona_id}  (Detalle de una zona)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/zonas/zona-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "zonas",
+                "zona-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /viajes/zonas/{zona_id}  (Reemplazar una zona)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/zonas/zona-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "zonas",
+                "zona-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /viajes/zonas/{zona_id}  (Eliminar una zona)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/zonas/zona-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "zonas",
+                "zona-0001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MID de Viajes y zonas (iniciar y finalizar viajes)",
+      "item": [
+        {
+          "name": "POST /viajes/iniciar  (Iniciar un viaje)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/iniciar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "iniciar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": \"usr-0001\",\n  \"vehiculoId\": \"veh-0001\",\n  \"origen\": {\n    \"lat\": 4.711,\n    \"lng\": -74.0721\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /viajes/{viaje_id}/finalizar  (Finalizar un viaje)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viajes/via-0001/finalizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viajes",
+                "via-0001",
+                "finalizar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destino\": {\n    \"lat\": 4.7125,\n    \"lng\": -74.07\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CRUD de Cuentas (usuarios y billetera)",
+      "item": [
+        {
+          "name": "GET /cuentas/usuarios  (Listar usuarios)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "disponible",
+                  "disabled": true
+                },
+                {
+                  "key": "pagina",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "tamano",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /cuentas/usuarios  (Crear un usuario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cuentas/usuarios/{usuario_id}  (Detalle de un usuario)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios/usr-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios",
+                "usr-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /cuentas/usuarios/{usuario_id}  (Actualizar un usuario)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios/usr-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios",
+                "usr-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /cuentas/usuarios/{usuario_id}  (Desactivar un usuario)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios/usr-0001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios",
+                "usr-0001"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cuentas/usuarios/{usuario_id}/billetera  (Saldo de la billetera)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios/usr-0001/billetera",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios",
+                "usr-0001",
+                "billetera"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cuentas/billeteras/{usuario_id}/movimientos  (Historial de movimientos)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/billeteras/usr-0001/movimientos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "billeteras",
+                "usr-0001",
+                "movimientos"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "tamano",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /cuentas/billeteras/{usuario_id}/movimientos  (Registrar una recarga o un débito)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/billeteras/usr-0001/movimientos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "billeteras",
+                "usr-0001",
+                "movimientos"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MID de Cuentas (liquidación y resumen)",
+      "item": [
+        {
+          "name": "POST /cuentas/liquidaciones  (Liquidar un viaje (lo dispara el MID de Viajes))",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/liquidaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "liquidaciones"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cuentas/usuarios/{usuario_id}/resumen-gasto  (Resumen de gasto mensual)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/usuarios/usr-0001/resumen-gasto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuentas",
+                "usuarios",
+                "usr-0001",
+                "resumen-gasto"
+              ],
+              "query": [
+                {
+                  "key": "mes",
+                  "value": "2026-11",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
