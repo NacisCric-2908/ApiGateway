@@ -12,6 +12,11 @@ if [ -n "$faltan" ]; then
   exit 1
 fi
 
+case "$JWKS_JSON" in
+  '{"keys":['*) ;;
+  *) echo '[GATEWAY] JWKS_JSON no parece un conjunto de llaves (debe empezar por {"keys":[...]}).' >&2; exit 1 ;;
+esac
+
 # Las llaves PÚBLICAS con las que se validan los tokens (formato JWKS). Las emite el servicio de tokens.
 export JWKS_PATH="${JWKS_PATH:-/tmp/jwks.json}"
 printf '%s' "$JWKS_JSON" > "$JWKS_PATH"

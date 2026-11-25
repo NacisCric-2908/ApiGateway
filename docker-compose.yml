@@ -1,0 +1,106 @@
+# Desarrollo y pruebas locales: el servicio de tokens, el gateway y, con el perfil «simulado», los seis servicios
+# detrás del gateway simulados. Antes de la primera vez: `make setup` (genera .env con llaves y secretos).
+x-servicio-simulado: &simulado
+  profiles: ["simulado", "test"]
+  build:
+    context: simuladores
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=2).status == 200 else 1)"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+
+services:
+  tokens:
+    build:
+      context: tokens
+      target: prod
+    restart: unless-stopped
+    # Compose lee .env solo para rellenar estas variables: cada contenedor recibe únicamente lo que usa.
+    # El servicio de tokens es el ÚNICO con la llave privada.
+    environment:
+      JWT_PRIVATE_KEY_B64: ${JWT_PRIVATE_KEY_B64:-}
+      CLIENTES_JSON: ${CLIENTES_JSON:-}
+      JWT_ISSUER: ${JWT_ISSUER:-rodar-gateway}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-rodar}
+      TOKEN_TTL_S: ${TOKEN_TTL_S:-900}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    # Sin puertos publicados: solo el gateway llega al servicio de tokens.
+
+  gateway:
+    build:
+      context: gateway
+    restart: unless-stopped
+    depends_on:
+      tokens:
+        condition: service_started
+    environment:
+      TOKENS_URL: http://tokens:8000
+      JWKS_JSON: ${JWKS_JSON:-}
+      FLOTA_CRUD_SECRET: ${FLOTA_CRUD_SECRET:-}
+      FLOTA_MID_SECRET: ${FLOTA_MID_SECRET:-}
+      VIAJES_CRUD_SECRET: ${VIAJES_CRUD_SECRET:-}
+      VIAJES_MID_SECRET: ${VIAJES_MID_SECRET:-}
+      CUENTAS_CRUD_SECRET: ${CUENTAS_CRUD_SECRET:-}
+      CUENTAS_MID_SECRET: ${CUENTAS_MID_SECRET:-}
+      JWT_ISSUER: ${JWT_ISSUER:-rodar-gateway}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-rodar}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # Los servicios por defecto son los simulados. Para apuntar a los reales, defina estas variables en .env.
+      FLOTA_CRUD_URL: ${FLOTA_CRUD_URL:-http://flota-crud:8000}
+      FLOTA_MID_URL: ${FLOTA_MID_URL:-http://flota-mid:8000}
+      VIAJES_CRUD_URL: ${VIAJES_CRUD_URL:-http://viajes-crud:8000}
+      VIAJES_MID_URL: ${VIAJES_MID_URL:-http://viajes-mid:8000}
+      CUENTAS_CRUD_URL: ${CUENTAS_CRUD_URL:-http://cuentas-crud:8000}
+      CUENTAS_MID_URL: ${CUENTAS_MID_URL:-http://cuentas-mid:8000}
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+
+  flota-crud:
+    <<: *simulado
+    environment: {NOMBRE: flota_crud, SECRETO: "${FLOTA_CRUD_SECRET:-}"}
+  flota-mid:
+    <<: *simulado
+    environment: {NOMBRE: flota_mid, SECRETO: "${FLOTA_MID_SECRET:-}"}
+  viajes-crud:
+    <<: *simulado
+    environment: {NOMBRE: viajes_crud, SECRETO: "${VIAJES_CRUD_SECRET:-}"}
+  viajes-mid:
+    <<: *simulado
+    environment: {NOMBRE: viajes_mid, SECRETO: "${VIAJES_MID_SECRET:-}"}
+  cuentas-crud:
+    <<: *simulado
+    environment: {NOMBRE: cuentas_crud, SECRETO: "${CUENTAS_CRUD_SECRET:-}"}
+  cuentas-mid:
+    <<: *simulado
+    environment: {NOMBRE: cuentas_mid, SECRETO: "${CUENTAS_MID_SECRET:-}"}
+
+  # Pruebas del servicio de tokens (unitarias): docker compose --profile test run --rm tokens-pruebas
+  tokens-pruebas:
+    profiles: ["test-unit"]
+    build:
+      context: tokens
+      target: test
+
+  # Pruebas de extremo a extremo contra el gateway real y los servicios simulados.
+  pruebas:
+    profiles: ["test"]
+    build:
+      context: pruebas
+    depends_on:
+      gateway:
+        condition: service_started
+      flota-crud: {condition: service_healthy}
+      flota-mid: {condition: service_healthy}
+      viajes-crud: {condition: service_healthy}
+      viajes-mid: {condition: service_healthy}
+      cuentas-crud: {condition: service_healthy}
+      cuentas-mid: {condition: service_healthy}
+    environment:
+      GATEWAY_URL: http://gateway:8080
+      JWT_PRIVATE_KEY_B64: ${JWT_PRIVATE_KEY_B64:-}  # solo para fabricar tokens vencidos o falsos en las pruebas
+      JWT_ISSUER: ${JWT_ISSUER:-rodar-gateway}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-rodar}
+    volumes:
+      - ./credenciales-locales.json:/credenciales-locales.json:ro
+      - ./gateway/settings:/gateway-settings:ro

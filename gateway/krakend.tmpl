@@ -5,6 +5,10 @@
     - settings/limites.json   límites de peticiones y tiempo de espera por defecto
   Una ruta solo se activa si la URL de su servicio está definida (así se puede desplegar por partes).
 */ -}}
+{{- /*
+  disable_jwk_security: KrakenD lo exige aunque la llave pública se lea de un ARCHIVO local (no hay conexión de red
+  que proteger). Sin él, las rutas se registran sin validar y responden 401 a todo, con una advertencia en el registro.
+*/ -}}
 {{- $servicios := .servicios -}}
 {{- $limites := .limites -}}
 {
@@ -74,12 +78,13 @@
       "method": "{{ .metodo }}",
       "output_encoding": "no-op",
       "timeout": "{{ default $limites.timeout_defecto .timeout }}",
-      "input_headers": ["Content-Type", "Accept"],
+      "input_headers": ["Content-Type", "Accept", "X-Client-Id"],
       "input_query_strings": {{ marshal (default (list) .query) }},
       "extra_config": {
         "auth/validator": {
           "alg": "RS256",
           "jwk_local_path": "{{ default "/tmp/jwks.json" (env "JWKS_PATH") }}",
+          "disable_jwk_security": true,
           "issuer": "{{ default "rodar-gateway" (env "JWT_ISSUER") }}",
           "audience": ["{{ default "rodar" (env "JWT_AUDIENCE") }}"],
           "scopes_key": "scope",

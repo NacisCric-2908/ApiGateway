@@ -1,0 +1,59 @@
+[
+ {
+  "client_id": "mid-flota",
+  "descripcion": "MID de Flota: consulta las zonas de Viajes y zonas para recomendar vehículos y generar alertas",
+  "alcances": [
+   "zonas:leer"
+  ]
+ },
+ {
+  "client_id": "mid-viajes",
+  "descripcion": "MID de Viajes y zonas: consulta saldo y cobra en Cuentas; consulta y reserva vehículos en Flota",
+  "alcances": [
+   "usuarios:leer",
+   "billetera:escribir",
+   "vehiculos:leer",
+   "vehiculos:escribir"
+  ]
+ },
+ {
+  "client_id": "mid-cuentas",
+  "descripcion": "MID de Cuentas: consulta viajes y zonas para liquidar",
+  "alcances": [
+   "viajes:leer",
+   "zonas:leer"
+  ]
+ },
+ {
+  "client_id": "cliente-demo",
+  "descripcion": "Cliente de la demostración: lo que haría la aplicación del usuario",
+  "alcances": [
+   "recomendaciones:leer",
+   "alertas:leer",
+   "viajes:iniciar",
+   "viajes:finalizar",
+   "resumen:leer"
+  ]
+ },
+ {
+  "client_id": "administrador",
+  "descripcion": "Administración y pruebas de integración: TODOS los alcances. No usar en una aplicación",
+  "alcances": [
+   "vehiculos:leer",
+   "vehiculos:escribir",
+   "recomendaciones:leer",
+   "alertas:leer",
+   "viajes:leer",
+   "viajes:escribir",
+   "viajes:iniciar",
+   "viajes:finalizar",
+   "zonas:leer",
+   "zonas:escribir",
+   "usuarios:leer",
+   "usuarios:escribir",
+   "billetera:leer",
+   "billetera:escribir",
+   "resumen:leer"
+  ]
+ }
+]
