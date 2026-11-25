@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+# Secretos y credenciales locales: NUNCA se suben
+.env
+.env.*
+!.env.example
+credenciales-locales.json
+*.pem
+*.log
+.idea/
+.vscode/
