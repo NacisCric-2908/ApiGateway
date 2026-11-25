@@ -1,0 +1,31 @@
+name: CI
+
+# Corre en cada pull request y en cada push a develop. No usa secretos: también es seguro con PR de forks.
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  # El nombre del job es el que se marca como «check requerido» en las reglas de rama.
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generar secretos de prueba
+        run: make setup
+      - name: Pruebas (tokens y recorrido completo por el gateway)
+        run: make test
+
+  infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar la plantilla de Bicep
+        run: docker run --rm -v "$PWD:/w" -w /w mcr.microsoft.com/azure-cli az bicep build --file infra/app.bicep --stdout > /dev/null
