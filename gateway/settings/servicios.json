@@ -1,0 +1,32 @@
+{
+ "flota_crud": {
+  "url_env": "FLOTA_CRUD_URL",
+  "secreto_env": "FLOTA_CRUD_SECRET",
+  "descripcion": "CRUD de Flota (vehículos y localidades)"
+ },
+ "flota_mid": {
+  "url_env": "FLOTA_MID_URL",
+  "secreto_env": "FLOTA_MID_SECRET",
+  "descripcion": "MID de Flota (recomendaciones y alertas)"
+ },
+ "viajes_crud": {
+  "url_env": "VIAJES_CRUD_URL",
+  "secreto_env": "VIAJES_CRUD_SECRET",
+  "descripcion": "CRUD de Viajes y zonas"
+ },
+ "viajes_mid": {
+  "url_env": "VIAJES_MID_URL",
+  "secreto_env": "VIAJES_MID_SECRET",
+  "descripcion": "MID de Viajes y zonas (iniciar y finalizar viajes)"
+ },
+ "cuentas_crud": {
+  "url_env": "CUENTAS_CRUD_URL",
+  "secreto_env": "CUENTAS_CRUD_SECRET",
+  "descripcion": "CRUD de Cuentas (usuarios y billetera)"
+ },
+ "cuentas_mid": {
+  "url_env": "CUENTAS_MID_URL",
+  "secreto_env": "CUENTAS_MID_SECRET",
+  "descripcion": "MID de Cuentas (liquidación y resumen)"
+ }
+}

@@ -1,0 +1,410 @@
+{
+ "lista": [
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/vehiculos",
+   "destino": "/vehiculos",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "Listar y buscar vehículos",
+   "query": [
+    "tipo",
+    "estado",
+    "localidad",
+    "bateriaMin",
+    "lat",
+    "lng",
+    "radioMetros",
+    "pagina",
+    "tamano"
+   ]
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "POST",
+   "publica": "/flota/vehiculos",
+   "destino": "/vehiculos",
+   "alcances": [
+    "vehiculos:escribir"
+   ],
+   "descripcion": "Crear un vehículo"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/vehiculos/{vehiculo_id}",
+   "destino": "/vehiculos/{vehiculo_id}",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "Detalle de un vehículo"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "PUT",
+   "publica": "/flota/vehiculos/{vehiculo_id}",
+   "destino": "/vehiculos/{vehiculo_id}",
+   "alcances": [
+    "vehiculos:escribir"
+   ],
+   "descripcion": "Reemplazar un vehículo"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "DELETE",
+   "publica": "/flota/vehiculos/{vehiculo_id}",
+   "destino": "/vehiculos/{vehiculo_id}",
+   "alcances": [
+    "vehiculos:escribir"
+   ],
+   "descripcion": "Eliminar un vehículo"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "PATCH",
+   "publica": "/flota/vehiculos/{vehiculo_id}/estado",
+   "destino": "/vehiculos/{vehiculo_id}/estado",
+   "alcances": [
+    "vehiculos:escribir"
+   ],
+   "descripcion": "Cambiar el estado (reserva atómica)"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/vehiculos/{vehiculo_id}/clima",
+   "destino": "/vehiculos/{vehiculo_id}/clima",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "Clima en la ubicación del vehículo",
+   "timeout": "15s"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/vehiculos/{vehiculo_id}/direccion",
+   "destino": "/vehiculos/{vehiculo_id}/direccion",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "Dirección de la ubicación del vehículo",
+   "timeout": "15s"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/localidades",
+   "destino": "/localidades",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "Las 20 localidades con el conteo de vehículos"
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/localidades/verificar",
+   "destino": "/localidades/verificar",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "¿En qué localidad está un punto?",
+   "query": [
+    "lat",
+    "lng"
+   ]
+  },
+  {
+   "servicio": "flota_crud",
+   "metodo": "GET",
+   "publica": "/flota/localidades/{codigo}",
+   "destino": "/localidades/{codigo}",
+   "alcances": [
+    "vehiculos:leer"
+   ],
+   "descripcion": "Una localidad con su geometría"
+  },
+  {
+   "servicio": "flota_mid",
+   "metodo": "GET",
+   "publica": "/flota/recomendaciones/vehiculo",
+   "destino": "/recomendaciones/vehiculo",
+   "alcances": [
+    "recomendaciones:leer"
+   ],
+   "descripcion": "Los 3 mejores vehículos cerca de un punto (se QUITA /flota)",
+   "query": [
+    "lat",
+    "lng",
+    "tipo"
+   ],
+   "timeout": "15s"
+  },
+  {
+   "servicio": "flota_mid",
+   "metodo": "GET",
+   "publica": "/flota/alertas",
+   "destino": "/flota/alertas",
+   "alcances": [
+    "alertas:leer"
+   ],
+   "descripcion": "Alertas operativas (NO se quita /flota: la ruta del MID ya empieza por ahí)",
+   "timeout": "15s"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "GET",
+   "publica": "/viajes",
+   "destino": "/viajes",
+   "alcances": [
+    "viajes:leer"
+   ],
+   "descripcion": "Listar viajes",
+   "query": [
+    "usuarioId",
+    "estado",
+    "desde",
+    "hasta",
+    "pagina",
+    "tamano"
+   ]
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "POST",
+   "publica": "/viajes",
+   "destino": "/viajes",
+   "alcances": [
+    "viajes:escribir"
+   ],
+   "descripcion": "Crear un viaje"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "GET",
+   "publica": "/viajes/{viaje_id}",
+   "destino": "/viajes/{viaje_id}",
+   "alcances": [
+    "viajes:leer"
+   ],
+   "descripcion": "Detalle de un viaje"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "PATCH",
+   "publica": "/viajes/{viaje_id}",
+   "destino": "/viajes/{viaje_id}",
+   "alcances": [
+    "viajes:escribir"
+   ],
+   "descripcion": "Actualizar un viaje"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "GET",
+   "publica": "/viajes/zonas",
+   "destino": "/zonas",
+   "alcances": [
+    "zonas:leer"
+   ],
+   "descripcion": "Listar zonas (se QUITA /viajes)",
+   "query": [
+    "tipo"
+   ]
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "POST",
+   "publica": "/viajes/zonas",
+   "destino": "/zonas",
+   "alcances": [
+    "zonas:escribir"
+   ],
+   "descripcion": "Crear una zona"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "GET",
+   "publica": "/viajes/zonas/verificar",
+   "destino": "/zonas/verificar",
+   "alcances": [
+    "zonas:leer"
+   ],
+   "descripcion": "¿En qué zonas cae un punto? (lo usa el MID de Flota)",
+   "query": [
+    "lat",
+    "lng"
+   ]
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "GET",
+   "publica": "/viajes/zonas/{zona_id}",
+   "destino": "/zonas/{zona_id}",
+   "alcances": [
+    "zonas:leer"
+   ],
+   "descripcion": "Detalle de una zona"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "PUT",
+   "publica": "/viajes/zonas/{zona_id}",
+   "destino": "/zonas/{zona_id}",
+   "alcances": [
+    "zonas:escribir"
+   ],
+   "descripcion": "Reemplazar una zona"
+  },
+  {
+   "servicio": "viajes_crud",
+   "metodo": "DELETE",
+   "publica": "/viajes/zonas/{zona_id}",
+   "destino": "/zonas/{zona_id}",
+   "alcances": [
+    "zonas:escribir"
+   ],
+   "descripcion": "Eliminar una zona"
+  },
+  {
+   "servicio": "viajes_mid",
+   "metodo": "POST",
+   "publica": "/viajes/iniciar",
+   "destino": "/viajes/iniciar",
+   "alcances": [
+    "viajes:iniciar"
+   ],
+   "descripcion": "Iniciar un viaje",
+   "timeout": "15s"
+  },
+  {
+   "servicio": "viajes_mid",
+   "metodo": "POST",
+   "publica": "/viajes/{viaje_id}/finalizar",
+   "destino": "/viajes/{viaje_id}/finalizar",
+   "alcances": [
+    "viajes:finalizar"
+   ],
+   "descripcion": "Finalizar un viaje",
+   "timeout": "15s"
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "GET",
+   "publica": "/cuentas/usuarios",
+   "destino": "/usuarios",
+   "alcances": [
+    "usuarios:leer"
+   ],
+   "descripcion": "Listar usuarios",
+   "query": [
+    "estado",
+    "correo",
+    "pagina",
+    "tamano"
+   ]
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "POST",
+   "publica": "/cuentas/usuarios",
+   "destino": "/usuarios",
+   "alcances": [
+    "usuarios:escribir"
+   ],
+   "descripcion": "Crear un usuario"
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "GET",
+   "publica": "/cuentas/usuarios/{usuario_id}",
+   "destino": "/usuarios/{usuario_id}",
+   "alcances": [
+    "usuarios:leer"
+   ],
+   "descripcion": "Detalle de un usuario"
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "PUT",
+   "publica": "/cuentas/usuarios/{usuario_id}",
+   "destino": "/usuarios/{usuario_id}",
+   "alcances": [
+    "usuarios:escribir"
+   ],
+   "descripcion": "Actualizar un usuario"
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "DELETE",
+   "publica": "/cuentas/usuarios/{usuario_id}",
+   "destino": "/usuarios/{usuario_id}",
+   "alcances": [
+    "usuarios:escribir"
+   ],
+   "descripcion": "Desactivar un usuario"
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "GET",
+   "publica": "/cuentas/usuarios/{usuario_id}/billetera",
+   "destino": "/usuarios/{usuario_id}/billetera",
+   "alcances": [
+    "usuarios:leer"
+   ],
+   "descripcion": "Saldo de la billetera"
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "GET",
+   "publica": "/cuentas/billeteras/{usuario_id}/movimientos",
+   "destino": "/billeteras/{usuario_id}/movimientos",
+   "alcances": [
+    "billetera:leer"
+   ],
+   "descripcion": "Historial de movimientos",
+   "query": [
+    "pagina",
+    "tamano"
+   ]
+  },
+  {
+   "servicio": "cuentas_crud",
+   "metodo": "POST",
+   "publica": "/cuentas/billeteras/{usuario_id}/movimientos",
+   "destino": "/billeteras/{usuario_id}/movimientos",
+   "alcances": [
+    "billetera:escribir"
+   ],
+   "descripcion": "Registrar una recarga o un débito"
+  },
+  {
+   "servicio": "cuentas_mid",
+   "metodo": "POST",
+   "publica": "/cuentas/liquidaciones",
+   "destino": "/liquidaciones",
+   "alcances": [
+    "billetera:escribir"
+   ],
+   "descripcion": "Liquidar un viaje (lo dispara el MID de Viajes)",
+   "timeout": "15s"
+  },
+  {
+   "servicio": "cuentas_mid",
+   "metodo": "GET",
+   "publica": "/cuentas/usuarios/{usuario_id}/resumen-gasto",
+   "destino": "/usuarios/{usuario_id}/resumen-gasto",
+   "alcances": [
+    "resumen:leer"
+   ],
+   "descripcion": "Resumen de gasto mensual",
+   "query": [
+    "mes"
+   ],
+   "timeout": "15s"
+  }
+ ]
+}

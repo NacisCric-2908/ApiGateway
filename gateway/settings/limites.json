@@ -1,0 +1,11 @@
+{
+ "token": {
+  "max_rate": 20,
+  "client_max_rate": 5
+ },
+ "global": {
+  "max_rate": 200,
+  "client_max_rate": 50
+ },
+ "timeout_defecto": "5s"
+}

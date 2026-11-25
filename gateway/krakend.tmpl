@@ -1,0 +1,107 @@
+{{- /*
+  Configuración de KrakenD (Flexible Config). NO se edita a mano para agregar rutas:
+    - settings/rutas.json     catálogo de rutas: servicio, método, ruta pública, ruta destino, alcance, consultas permitidas
+    - settings/servicios.json a qué variables de entorno corresponden la URL y el secreto de cada servicio
+    - settings/limites.json   límites de peticiones y tiempo de espera por defecto
+  Una ruta solo se activa si la URL de su servicio está definida (así se puede desplegar por partes).
+*/ -}}
+{{- $servicios := .servicios -}}
+{{- $limites := .limites -}}
+{
+  "$schema": "https://www.krakend.io/schema/krakend.json",
+  "version": 4,
+  "name": "Gateway Rodar",
+  "port": 8080,
+  "timeout": "{{ $limites.timeout_defecto }}",
+  "cache_ttl": "0s",
+  "output_encoding": "no-op",
+  "extra_config": {
+    "router": {
+      "health_path": "/health",
+      "hide_version_header": true,
+      "error_body": {
+        "404": {"codigo": "no_encontrado", "mensaje": "La ruta no existe en el gateway.", "detalle": {}},
+        "405": {"codigo": "metodo_no_permitido", "mensaje": "Método no permitido para esta ruta.", "detalle": {}}
+      }
+    },
+    "telemetry/logging": {
+      "level": "{{ default "INFO" (env "LOG_LEVEL") }}",
+      "prefix": "[GATEWAY]",
+      "syslog": false,
+      "stdout": true,
+      "format": "logstash"
+    },
+    "security/http": {
+      "content_type_nosniff": true,
+      "sts_seconds": 31536000,
+      "force_sts_header": true,
+      "frame_deny": true
+    },
+    "qos/ratelimit/service": {
+      "max_rate": {{ $limites.global.max_rate }},
+      "client_max_rate": {{ $limites.global.client_max_rate }},
+      "strategy": "ip"
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/token",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "timeout": "5s",
+      "input_headers": ["Content-Type", "Authorization"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": {{ $limites.token.max_rate }},
+          "client_max_rate": {{ $limites.token.client_max_rate }},
+          "strategy": "ip"
+        }
+      },
+      "backend": [{"host": ["{{ env "TOKENS_URL" }}"], "url_pattern": "/token", "encoding": "no-op"}]
+    },
+    {
+      "endpoint": "/.well-known/jwks.json",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "timeout": "5s",
+      "backend": [{"host": ["{{ env "TOKENS_URL" }}"], "url_pattern": "/.well-known/jwks.json", "encoding": "no-op"}]
+    }
+    {{- range .rutas.lista }}
+    {{- $svc := index $servicios .servicio }}
+    {{- if env $svc.url_env }}
+    ,{
+      "endpoint": "{{ .publica }}",
+      "method": "{{ .metodo }}",
+      "output_encoding": "no-op",
+      "timeout": "{{ default $limites.timeout_defecto .timeout }}",
+      "input_headers": ["Content-Type", "Accept"],
+      "input_query_strings": {{ marshal (default (list) .query) }},
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_local_path": "{{ default "/tmp/jwks.json" (env "JWKS_PATH") }}",
+          "issuer": "{{ default "rodar-gateway" (env "JWT_ISSUER") }}",
+          "audience": ["{{ default "rodar" (env "JWT_AUDIENCE") }}"],
+          "scopes_key": "scope",
+          "scopes": {{ marshal .alcances }},
+          "scopes_matcher": "any",
+          "propagate_claims": [["client_id", "X-Client-Id"]]
+        }
+      },
+      "backend": [
+        {
+          "host": ["{{ env $svc.url_env }}"],
+          "url_pattern": "{{ .destino }}",
+          "encoding": "no-op",
+          "extra_config": {
+            "modifier/martian": {
+              "header.Modifier": {"scope": ["request"], "name": "X-Gateway-Secret", "value": "{{ env $svc.secreto_env }}"}
+            }
+          }
+        }
+      ]
+    }
+    {{- end }}
+    {{- end }}
+  ]
+}
