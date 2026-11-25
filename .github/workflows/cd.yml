@@ -1,0 +1,94 @@
+name: Despliegue a Azure
+
+# Se despliega al fusionar a main (las versiones) o a mano desde la pestaña Actions.
+# Requiere la configuración de una sola vez de docs/despliegue-azure.md (plataforma, acceso OIDC y secretos).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # para autenticarse en Azure sin contraseñas (OIDC)
+  contents: read
+
+concurrency:
+  group: despliegue-gateway
+  cancel-in-progress: false
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GRUPO: ${{ vars.AZURE_RESOURCE_GROUP }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Iniciar sesión en Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Construir y publicar las dos imágenes en el registro (ACR)
+        run: |
+          ACR="$(az acr list --resource-group "$GRUPO" --query "[0].name" -o tsv)"
+          [ -n "$ACR" ] || { echo "No hay un ACR en el grupo $GRUPO: cree antes la plataforma (repositorio ApiFlota, infra/plataforma.bicep)" >&2; exit 1; }
+          az acr login --name "$ACR"
+          IMAGEN_GATEWAY="$ACR.azurecr.io/rodar-gateway:${GITHUB_SHA}"
+          IMAGEN_TOKENS="$ACR.azurecr.io/rodar-tokens:${GITHUB_SHA}"
+          docker build --tag "$IMAGEN_GATEWAY" gateway
+          docker build --target prod --tag "$IMAGEN_TOKENS" tokens
+          docker push "$IMAGEN_GATEWAY"
+          docker push "$IMAGEN_TOKENS"
+          echo "IMAGEN_GATEWAY=$IMAGEN_GATEWAY" >> "$GITHUB_ENV"
+          echo "IMAGEN_TOKENS=$IMAGEN_TOKENS" >> "$GITHUB_ENV"
+
+      - name: Desplegar
+        env:
+          JWT_PRIVATE_KEY_B64: ${{ secrets.JWT_PRIVATE_KEY_B64 }}
+          CLIENTES_JSON: ${{ secrets.CLIENTES_JSON }}
+          JWKS_JSON: ${{ secrets.JWKS_JSON }}
+          FLOTA_CRUD_SECRET: ${{ secrets.FLOTA_CRUD_SECRET }}
+          FLOTA_MID_SECRET: ${{ secrets.FLOTA_MID_SECRET }}
+          VIAJES_CRUD_SECRET: ${{ secrets.VIAJES_CRUD_SECRET }}
+          VIAJES_MID_SECRET: ${{ secrets.VIAJES_MID_SECRET }}
+          CUENTAS_CRUD_SECRET: ${{ secrets.CUENTAS_CRUD_SECRET }}
+          CUENTAS_MID_SECRET: ${{ secrets.CUENTAS_MID_SECRET }}
+          # Direcciones de los servicios de OTROS grupos (variables del repositorio; vacías = rutas desactivadas)
+          VIAJES_CRUD_URL: ${{ vars.VIAJES_CRUD_URL }}
+          VIAJES_MID_URL: ${{ vars.VIAJES_MID_URL }}
+          CUENTAS_CRUD_URL: ${{ vars.CUENTAS_CRUD_URL }}
+          CUENTAS_MID_URL: ${{ vars.CUENTAS_MID_URL }}
+        run: |
+          for v in JWT_PRIVATE_KEY_B64 CLIENTES_JSON JWKS_JSON FLOTA_CRUD_SECRET FLOTA_MID_SECRET; do
+            [ -n "${!v}" ] || { echo "Falta un secreto del repositorio (ejecute scripts/03-secretos-produccion.sh): $v" >&2; exit 1; }
+          done
+          az extension add --name containerapp --upgrade --yes --only-show-errors
+          # Conserva el «modo demo» (réplicas mínimas) que se haya dejado en el gateway.
+          MIN="$(az containerapp show --name rodar-gateway --resource-group "$GRUPO" --query properties.template.scale.minReplicas -o tsv 2>/dev/null || true)"
+          az deployment group create \
+            --resource-group "$GRUPO" \
+            --template-file infra/app.bicep \
+            --parameters imagenGateway="$IMAGEN_GATEWAY" imagenTokens="$IMAGEN_TOKENS" \
+                         jwtPrivateKeyB64="$JWT_PRIVATE_KEY_B64" clientesJson="$CLIENTES_JSON" jwksJson="$JWKS_JSON" \
+                         flotaCrudSecret="$FLOTA_CRUD_SECRET" flotaMidSecret="$FLOTA_MID_SECRET" \
+                         viajesCrudSecret="${VIAJES_CRUD_SECRET:-}" viajesMidSecret="${VIAJES_MID_SECRET:-}" \
+                         cuentasCrudSecret="${CUENTAS_CRUD_SECRET:-}" cuentasMidSecret="${CUENTAS_MID_SECRET:-}" \
+                         viajesCrudUrl="${VIAJES_CRUD_URL:-}" viajesMidUrl="${VIAJES_MID_URL:-}" \
+                         cuentasCrudUrl="${CUENTAS_CRUD_URL:-}" cuentasMidUrl="${CUENTAS_MID_URL:-}" \
+                         replicasMinimas="${MIN:-0}" \
+            --query properties.outputs --output json | tee salidas.json
+          URL="$(python3 -c "import json; print(json.load(open('salidas.json'))['urlPublicaGateway']['value'])")"
+          echo "### Gateway público: $URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comprobar el gateway
+        run: |
+          URL="$(python3 -c "import json; print(json.load(open('salidas.json'))['urlPublicaGateway']['value'])")"
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 20 "$URL/health" > /dev/null; then echo "El gateway responde en $URL"; exit 0; fi
+            echo "Esperando al gateway ($i/6)…"; sleep 15
+          done
+          echo "El gateway no respondió: revise los logs con 'az containerapp logs show -n rodar-gateway -g $GRUPO'" >&2
+          exit 1
